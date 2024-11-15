@@ -24,8 +24,11 @@ router
       .group(() => {
         router.post('/register', [AuthController, 'register'])
         router.post('/login', [AuthController, 'login'])
+        router.post('/admin-register', [AuthController, 'adminRegister'])
+        router.post('/admin-login', [AuthController, 'adminLogin'])
         router.post('/logout', [AuthController, 'logout']).use(middleware.auth())
-        router.get('/me', [AuthController, 'me'])
+        // router.get('/me', [AuthController, 'me']).use(middleware.auth())
+        router.get('/me', [AuthController, 'me']).use(middleware.auth({ guards: ['admin'] }))
       })
       .prefix('/auth')
   })

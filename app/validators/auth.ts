@@ -20,3 +20,24 @@ export const loginValidator = vine.compile(
     password: vine.string().minLength(6),
   })
 )
+
+export const adminLoginValidator = vine.compile(
+  vine.object({
+    email: vine.string().email().normalizeEmail(),
+    password: vine.string().minLength(6),
+  })
+)
+
+export const adminRegisterValidator = vine.compile(
+  vine.object({
+    email: vine
+      .string()
+      .email()
+      .normalizeEmail()
+      .unique(async (db, value) => {
+        const admin = await db.from('admins').select('id').where('email', value).first()
+        return !admin
+      }),
+    password: vine.string().minLength(6),
+  })
+)

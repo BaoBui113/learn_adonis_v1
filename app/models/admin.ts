@@ -10,12 +10,9 @@ const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   passwordColumnName: 'password',
 })
 
-export default class User extends compose(BaseModel, AuthFinder) {
+export default class Admin extends compose(BaseModel, AuthFinder) {
   @column({ isPrimary: true })
   declare id: number
-
-  @column()
-  declare fullName: string | null
 
   @column()
   declare email: string
@@ -29,7 +26,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 
-  static accessTokens = DbAccessTokensProvider.forModel(User, {
-    table: 'auth_access_tokens',
+  static adminAccessTokens = DbAccessTokensProvider.forModel(Admin, {
+    table: 'admin_access_tokens',
   })
 }

@@ -3,12 +3,18 @@ import { tokensGuard, tokensUserProvider } from '@adonisjs/auth/access_tokens'
 import type { InferAuthEvents, Authenticators } from '@adonisjs/auth/types'
 
 const authConfig = defineConfig({
-  default: 'api',
+  default: 'user',
   guards: {
-    api: tokensGuard({
+    user: tokensGuard({
       provider: tokensUserProvider({
         tokens: 'accessTokens',
-        model: () => import('#models/user')
+        model: () => import('#models/user'),
+      }),
+    }),
+    admin: tokensGuard({
+      provider: tokensUserProvider({
+        tokens: 'adminAccessTokens',
+        model: () => import('#models/admin'),
       }),
     }),
   },

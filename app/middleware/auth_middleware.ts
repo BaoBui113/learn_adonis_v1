@@ -21,5 +21,8 @@ export default class AuthMiddleware {
   ) {
     await ctx.auth.authenticateUsing(options.guards, { loginRoute: this.redirectTo })
     return next()
+    // const guards = options.guards || ['user', 'admin']
+    // await ctx.auth.authenticateUsing(guards, { loginRoute: this.redirectTo })
+    // return next()
   }
 }
