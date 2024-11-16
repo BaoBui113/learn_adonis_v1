@@ -1,5 +1,6 @@
 import Admin from '#models/admin'
 import User from '#models/user'
+import Skill from '#models/skill'
 import {
   adminLoginValidator,
   adminRegisterValidator,
@@ -11,7 +12,18 @@ import type { HttpContext } from '@adonisjs/core/http'
 export default class AuthController {
   async register({ request, response }: HttpContext) {
     const data = await request.validateUsing(registerValidator)
-    const user = await User.create(data)
+    const { skillIds, ...userData } = data
+
+    // Create the user
+    const user = await User.create(userData)
+
+    // Attach skills to the user
+    if (skillIds && skillIds.length > 0) {
+      const skills = await Skill.query().whereIn('id', skillIds)
+      await user.related('skills').attach(skills.map((skill) => skill.id))
+    }
+
+    await user.load('skills')
     response.status(201).json({ user })
   }
 
