@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: learn_adonis_blog
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: learn_adonis_blog
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: learn_adonis_blog
+    ports:
+      - '3307:3306'
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app-network
+
+volumes:
+  db_data:
+
+networks:
+  app-network:

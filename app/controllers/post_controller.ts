@@ -43,7 +43,7 @@ export default class PostController {
       if (error.messages) {
         return ResponseCommon.validationError(response, error.messages)
       }
-      return ResponseCommon.error(response, 'Failed to update post', error.messages)
+      return ResponseCommon.notFound(response, 'Post not found')
     }
   }
 

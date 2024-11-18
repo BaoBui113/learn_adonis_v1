@@ -1,31 +1,21 @@
 import Admin from '#models/admin'
 import User from '#models/user'
-import Skill from '#models/skill'
-import {
-  adminLoginValidator,
-  adminRegisterValidator,
-  loginValidator,
-  registerValidator,
-} from '#validators/auth'
+import { adminLoginValidator, loginValidator, registerValidator } from '#validators/auth'
 import type { HttpContext } from '@adonisjs/core/http'
 import ResponseCommon from '../helper/common_response.js'
 
 export default class AuthController {
   async register({ request, response }: HttpContext) {
-    const data = await request.validateUsing(registerValidator)
-    const { skillIds, ...userData } = data
-
-    // Create the user
-    const user = await User.create(userData)
-
-    // Attach skills to the user
-    if (skillIds && skillIds.length > 0) {
-      const skills = await Skill.query().whereIn('id', skillIds)
-      await user.related('skills').attach(skills.map((skill) => skill.id))
+    try {
+      const data = await request.validateUsing(registerValidator)
+      const user = await User.create(data)
+      return ResponseCommon.success(response, 'User registered successfully', user)
+    } catch (error) {
+      if (error.messages) {
+        return ResponseCommon.validationError(response, error.messages)
+      }
+      return ResponseCommon.error(response, 'Failed to register user')
     }
-
-    await user.load('skills')
-    response.status(201).json({ user })
   }
 
   async login({ request, response }: HttpContext) {
@@ -40,12 +30,6 @@ export default class AuthController {
     } catch (error) {
       return ResponseCommon.error(response, 'Failed to login')
     }
-  }
-
-  async adminRegister({ request, response }: HttpContext) {
-    const data = await request.validateUsing(adminRegisterValidator)
-    const admin = await Admin.create(data)
-    response.status(201).json({ admin })
   }
 
   async adminLogin({ request, response }: HttpContext) {
@@ -74,7 +58,7 @@ export default class AuthController {
 
   async me({ response, auth }: HttpContext) {
     try {
-      return ResponseCommon.success(response, 'User retrieved successfully', auth.user)
+      return ResponseCommon.success(response, 'Admin retrieved successfully', auth.user)
     } catch (error) {
       return ResponseCommon.error(response, 'Failed to retrieve user')
     }

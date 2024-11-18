@@ -12,7 +12,6 @@ import { middleware } from './kernel.js'
 
 const AuthController = () => import('#controllers/auth_controller')
 const PostsController = () => import('#controllers/post_controller')
-const SkillsController = () => import('#controllers/skill_controller')
 const UserController = () => import('#controllers/user_controller')
 router.get('/', async () => {
   return {
@@ -33,7 +32,6 @@ router
       .group(() => {
         router.post('/register', [AuthController, 'register'])
         router.post('/login', [AuthController, 'login'])
-        router.post('/admin-register', [AuthController, 'adminRegister'])
         router.post('/admin-login', [AuthController, 'adminLogin'])
         router
           .post('/logout', [AuthController, 'logout'])
@@ -53,15 +51,5 @@ router
           .use(middleware.auth({ guards: ['admin'] }))
       })
       .prefix('/posts')
-    // Skill
-    router
-      .group(() => {
-        router.get('/', [SkillsController, 'index'])
-        router.post('/', [SkillsController, 'store'])
-        router.get('/:id', [SkillsController, 'show'])
-        router.put('/:id', [SkillsController, 'update'])
-        router.delete('/:id', [SkillsController, 'destroy'])
-      })
-      .prefix('/skill')
   })
   .prefix('/api')
