@@ -8,6 +8,7 @@ import {
   registerValidator,
 } from '#validators/auth'
 import type { HttpContext } from '@adonisjs/core/http'
+import ResponseCommon from '../helper/common_response.js'
 
 export default class AuthController {
   async register({ request, response }: HttpContext) {
@@ -28,11 +29,17 @@ export default class AuthController {
   }
 
   async login({ request, response }: HttpContext) {
-    const { email, password } = await request.validateUsing(loginValidator)
-    const user = await User.verifyCredentials(email, password)
-    const token = await User.accessTokens.create(user)
-    const accessToken = token.value!.release()
-    response.status(200).json({ accessToken })
+    try {
+      const { email, password } = await request.validateUsing(loginValidator)
+      const user = await User.verifyCredentials(email, password)
+      const token = await User.accessTokens.create(user)
+      const accessToken = {
+        accessToken: token.value!.release(),
+      }
+      return ResponseCommon.success(response, 'User logged in successfully', accessToken)
+    } catch (error) {
+      return ResponseCommon.error(response, 'Failed to login')
+    }
   }
 
   async adminRegister({ request, response }: HttpContext) {
@@ -42,29 +49,34 @@ export default class AuthController {
   }
 
   async adminLogin({ request, response }: HttpContext) {
-    const { email, password } = await request.validateUsing(adminLoginValidator)
-    const admin = await Admin.verifyCredentials(email, password)
-    const token = await Admin.adminAccessTokens.create(admin)
-    const accessToken = token.value!.release()
-    response.status(200).json({ accessToken })
+    try {
+      const { email, password } = await request.validateUsing(adminLoginValidator)
+      const admin = await Admin.verifyCredentials(email, password)
+      const token = await Admin.adminAccessTokens.create(admin)
+      const accessToken = {
+        accessToken: token.value!.release(),
+      }
+      return ResponseCommon.success(response, 'Admin logged in successfully', accessToken)
+    } catch (error) {
+      return ResponseCommon.error(response, 'Failed to login')
+    }
   }
 
-  async logout({ auth }: HttpContext) {
+  async logout({ response, auth }: HttpContext) {
     const user = auth.user!
     if (user instanceof User) {
       await User.accessTokens.delete(user, user.currentAccessToken.identifier)
     } else if (user instanceof Admin) {
       await Admin.adminAccessTokens.delete(user, user.currentAccessToken.identifier)
     }
-    return { messages: 'Logged out successfully' }
+    return ResponseCommon.success(response, 'User logged out successfully')
   }
 
-  async me({ auth }: HttpContext) {
-    const user = auth.user
-    console.log('auth.user', user)
-
-    return {
-      user: auth.user,
+  async me({ response, auth }: HttpContext) {
+    try {
+      return ResponseCommon.success(response, 'User retrieved successfully', auth.user)
+    } catch (error) {
+      return ResponseCommon.error(response, 'Failed to retrieve user')
     }
   }
 }
